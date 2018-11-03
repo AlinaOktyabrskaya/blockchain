@@ -1,62 +1,102 @@
+package blockchain;
+import java.io.Serializable;
 import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-public class Blockchain {
+import java.time.LocalTime;
+import java.util.Scanner;
+
+public class Blockchain implements Serializable {
+
+    private String nonce = "";
+    int starthash = 0;
+    String previoushash = Integer.toString(starthash);
+    String currenthash = "";
+    private int tiktok;
 
 
-    Blockchain(){
+    Blockchain() {
 
 
         int id = 1;
-        int starthash = 0;
-
-        int time = 3;
-        String previoushash = Integer.toString(starthash);
-        String currenthash = "";
+        int time;
         Boolean sec;
+        int zeros;
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter how many zeros the hash must starts with: ");
+        zeros = scanner.nextInt();
+
+        for (int i = 0;  i < zeros; i ++){
+            nonce+="0";
+        }
+        System.out.print("Enter how many block will created: ");
+
+        time = scanner.nextInt();
 
 
-        for(int i = 0; i < time; i ++)
-        {
+
+        for (int i = 0; i < time; i++) {
             System.out.println("Block:");
             System.out.println("id: " + id);
 
-            currenthash = GenerateBlock(previoushash);
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime().hashCode());
-            System.out.println("Timestamp: " + timeStamp);
+            currenthash = proofOfWork(previoushash); 
+            getTimeStamp();
+
             System.out.println("Hash of the previous block: " + previoushash);
-            System.out.println("Hash of the block: "+ currenthash);
+            System.out.println("Hash of the block: " + currenthash);
+            System.out.println("Block was generating for " + tiktok + " seconds");
 
             sec = validate(previoushash, currenthash);
 
-            if (sec){
+            if (sec) {
                 previoushash = currenthash;
                 id++;
                 System.out.println();
-            }else{
-                System.out.println("Hash dont valid!!!");
+            } else {
+                System.out.println("Hash not valid!!!");
 
                 break;
             }
+        }
+    }
+
+    private void getTimeStamp() {
+        System.out.println("Timestamp: " + System.currentTimeMillis());
+    }
 
 
+    private String proofOfWork(String block) {
 
+        String nonceKey = nonce;
+        long nonce = 0;
+        boolean nonceFound = false;
+        String nonceHash = "";
+
+
+        LocalTime time_before = LocalTime.now();
+
+        while (!nonceFound) {
+
+            nonceHash = GenerateBlock(block + nonce);
+
+            nonceFound = nonceHash.substring(0, nonceKey.length()).equals(nonceKey);
+            nonce++;
 
         }
 
-
-
+        LocalTime time_after = LocalTime.now();
+        //считаем разницу во времени
+        this.tiktok = (time_after.getMinute()-time_before.getMinute())*60 + (time_after.getSecond()-time_before.getSecond());
+        return nonceHash;
 
     }
 
     private Boolean validate(String previousblock, String currentblock) {
-        String check = GenerateBlock(previousblock);
+        String check = proofOfWork(previousblock);
         if(check.equals(currentblock)){
             return true;
         }else {
             return false;
         }
-
     }
 
     private String GenerateBlock(String currentid) {
@@ -77,6 +117,5 @@ public class Blockchain {
         }
 
     }
-
 
 }
