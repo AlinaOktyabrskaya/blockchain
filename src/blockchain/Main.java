@@ -7,24 +7,13 @@ import java.io.ObjectOutputStream;
 public class Main {
 
     public static void main(String[] args) {
-        new Blockchain();
-        FileOutputStream fos = null;
-        ObjectOutputStream oos = null;
-        try {
-            fos = new FileOutputStream("temp.out");
-            oos = new ObjectOutputStream(fos);
-        } catch (IOException e) {
-            System.out.println("Exit");
-        }
-        Blockchain b = new Blockchain();
+      int miners_count = 4;
 
-        try {
-            oos.writeObject(b);
-            oos.flush();
-            oos.close();
-        } catch (IOException e) {
-            System.out.println("Smth wrong");
-        }
+       for (int i = 1; i <=miners_count;  i ++){
+           Thread thread = new Blockchain(i);
+           thread.start();
+       }
+
 
     }
     }
